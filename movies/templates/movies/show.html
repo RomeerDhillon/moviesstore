@@ -39,6 +39,8 @@
               {{ review.date }}
             </h6>
             <p class="card-text">{{ review.comment }}</p>
+            <a class="btn btn-warning" href="{% url 'movies.report_review' id=template_data.movie.id review_id=review.id %}">Report
+            </a>
             {% if user.is_authenticated and user == review.user %}
             <a class="btn btn-primary" href="{% url 'movies.edit_review' id=template_data.movie.id review_id=review.id %}">Edit
             </a>
