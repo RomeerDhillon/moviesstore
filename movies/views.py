@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 def index(request):
     search_term = request.GET.get('search')
@@ -69,3 +69,32 @@ def report_review(request, id, review_id):
         review.save()
         review.delete()
     return redirect('movies.show', id=id)
+
+@user_passes_test(lambda u: u.is_superuser)
+def top_commenter(request):
+    # go through every comment 
+    # userid : number 
+    #keep a running int of largest comment, keep user id correlated to that 
+
+    counts = {}
+    max = 0
+    max_user = None
+
+    for review in Review.objects.all():
+        if review.user.id not in counts: 
+            counts[review.user.id] = 0
+
+        counts[review.user.id] += 1
+        if (counts[review.user.id] > max):
+            max = counts[review.user.id]
+            max_user = review.user.username
+
+    #page name 
+    template_data = {}
+    template_data['title'] = 'Top Commenter'
+
+    template_data['top_user'] = max_user
+    template_data['count'] = max
+
+    return render(request, 'movies/top_commenter.html',
+        {'template_data': template_data})

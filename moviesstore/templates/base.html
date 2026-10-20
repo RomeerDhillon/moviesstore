@@ -61,6 +61,13 @@
               Sign Up
             </a>
             {% endif %}
+
+            {% if user.is_superuser %}
+            <a class = "nav-link"
+              href="{% url 'admin:index' %}">Admin</a>
+              <a class = "nav-link"
+              href="{% url 'movies.top_commenter' %}">Top Commenter</a>
+            {% endif %}
           </div>
         </div>
       </div>
