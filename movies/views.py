@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review
 from django.contrib.auth.decorators import login_required, user_passes_test
+from cart.models import Item
 
 def index(request):
     search_term = request.GET.get('search')
@@ -98,3 +99,38 @@ def top_commenter(request):
 
     return render(request, 'movies/top_commenter.html',
         {'template_data': template_data})
+
+@user_passes_test(lambda u: u.is_superuser)
+def top_movies(request):
+    review_counts = {}
+    most_reviewed = None
+    most_reviewed_count = 0
+    for review in Review.objects.all():
+        if review.movie.id not in review_counts:
+            review_counts[review.movie.id] = 0
+        review_counts[review.movie.id] += 1
+        if review_counts[review.movie.id] > most_reviewed_count:
+            most_reviewed_count = review_counts[review.movie.id]
+            most_reviewed = review.movie.name
+
+    purchase_counts = {}
+    most_bought = None
+    most_bought_count = 0
+    for item in Item.objects.all():
+        if item.movie.id not in purchase_counts:
+            purchase_counts[item.movie.id] = 0
+        purchase_counts[item.movie.id] += item.quantity
+        if purchase_counts[item.movie.id] > most_bought_count:
+            most_bought_count = purchase_counts[item.movie.id]
+            most_bought = item.movie.name
+    template_data = {}
+    template_data['title'] = 'Top Movies'
+    template_data['most_reviewed'] = most_reviewed
+    template_data['most_reviewed_count'] = most_reviewed_count
+    template_data['most_bought'] = most_bought
+    template_data['most_bought_count'] = most_bought_count
+    return render(
+        request,
+        'movies/top_movies.html',
+        {'template_data': template_data}
+    )
