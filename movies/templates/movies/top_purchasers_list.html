@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-3">
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col mx-auto mb-3">
+                <h2>Top Purchasers List</h2>
+                <hr />
+
+                <form method="GET" class="row g-2 mb-3">
+                    <div class="col-auto">
+                        <input type="number" name="size" min="1" class="form-control"
+                               placeholder="List size (blank = all)"
+                               value="{{ template_data.size }}">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn bg-dark text-white">Apply</button>
+                        <a href="{% url 'movies.top_purchasers_list' %}" class="btn btn-outline-secondary">Show All</a>
+                    </div>
+                </form>
+
+                {% if template_data.users %}
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Movies Purchased</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in template_data.users %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{  u.username  }}</td>
+                            <td>{{  u.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No users yet.</p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
