@@ -27,6 +27,33 @@
             </div>
           </form>
         </p>
+        <h2>Rating<h2>
+        <hr />
+        <!-- average of everyone's ratings for this movie -->
+         <p><b>Average Rating:</b>
+            {% if template_data.average_rating %}
+            {{ template_data.average_rating|floatformat:1 }} / 5
+            ({{ template_data.rating_count }} rating{{ template_data.rating_count|pluralize }})
+            {% else %}
+            No ratings yet
+            {% endif %}
+         </p>
+         {% if user.is_authenticated %}
+         {% if template_data.user_rating %}
+         <p><b>Your Rating:</b> {{ template_data.user_rating.stars}} / 5</p>
+         {% endif %}
+         <form method="POST" action="{% url 'movies.rate_movie' id=template_data.movie.id %}" class="mb-4">
+            {% csrf_token %}
+            {% for star in template_data.star_options %}
+            <input type="radio" class="btn-check" name="stars" id="star{{ star }}" value="{{ star }}" required
+              {% if template_data.user_rating.stars == star %}checked{% endif %}>
+            <label class="btn btn-outline-warning" for="star{{ star}}">{{ star }} &#9733;</label>
+            {% endfor %}
+            <button type="submit" class="btn bg-dark text-white ms-2">Submit Rating</button>
+         </form>
+         {% else %}
+         <p><a href="{% url 'accounts.login' %}">Log in</a> to rate this movie</p>
+         {% endif %}
         <h2>Reviews</h2>
         <hr />
         <ul class="list-group">

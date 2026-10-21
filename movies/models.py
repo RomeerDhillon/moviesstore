@@ -21,3 +21,14 @@ class Review(models.Model):
     reported = models.BooleanField(default=False)
     def __str__(self):
         return str(self.id) + ' - ' + self.movie.name
+
+class Rating(models.Model): 
+    id = models.AutoField(primary_key=True)
+    stars = models.IntegerField()
+    movie = models.ForeignKey(Movie,
+            on_delete=models.CASCADE)
+    user = models.ForeignKey(User,
+            on_delete=models.CASCADE)
+    def __str__(self):
+            return str(self.id) + ' - ' + self.movie.name + ' - ' + str(self.stars) + ' stars'
+    
