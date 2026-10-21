@@ -3,6 +3,7 @@ from .models import Movie, Review, Rating
 from django.contrib.auth.decorators import login_required, user_passes_test
 from cart.models import Item
 from django.db.models import Avg
+from django.contrib.auth.models import User
 
 
 def index(request):
@@ -184,5 +185,32 @@ def top_purchaser(request):
     return render(
         request,
         'movies/top_purchaser.html',
+        {'template_data': template_data}
+    )
+
+@user_passes_test(lambda u: u.is_superuser)
+def top_purchasers_list(request):
+    counts = {}
+    for user in User.objects.all():
+        counts[user.id] = {'username': user.username, 'count': 0}
+    
+    for item in Item.objects.all():
+        user = item.order.user
+        if user.id in counts:
+            counts[user.id]['count'] += item.quantity
+    
+    ranked = sorted(counts.values(), key=lambda u: (-u['count'], u['username']))
+
+    size = request.GET.get('size', '').strip()
+    if size.isdigit() and int(size) > 0:
+        ranked = ranked[:int(size)]
+
+    template_data = {}
+    template_data['title'] = 'Top Purchasers List'
+    template_data['users'] = ranked
+    template_data['size'] = size
+    return render(
+        request,
+        'movies/top_purchasers_list.html',
         {'template_data': template_data}
     )
