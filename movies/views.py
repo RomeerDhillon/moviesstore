@@ -161,3 +161,28 @@ def top_movies(request):
         'movies/top_movies.html',
         {'template_data': template_data}
     )
+
+@user_passes_test(lambda u: u.is_superuser)
+def top_purchaser(request):
+    counts = {}
+    max_user = None
+    max_count = 0
+    
+    for item in Item.objects.all():
+        user = item.order.user
+        if user.id not in counts:
+            counts[user.id] = 0
+        counts[user.id] += item.quantity
+        if counts[user.id] > max_count:
+            max_count = counts[user.id]
+            max_user = user.username
+
+    template_data = {}
+    template_data['title'] = 'Top Purchaser'
+    template_data['max_user'] = max_user
+    template_data['max_count'] = max_count
+    return render(
+        request,
+        'movies/top_purchaser.html',
+        {'template_data': template_data}
+    )
